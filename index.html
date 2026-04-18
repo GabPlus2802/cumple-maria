@@ -1,0 +1,529 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body, #app {
+    min-height: 100vh;
+    font-family: 'Quicksand', sans-serif;
+    overflow: hidden;
+  }
+
+  #app {
+    background: linear-gradient(160deg, #a8d8ea 0%, #d6eaf8 40%, #f9e4f0 80%, #fce4ec 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 600px;
+  }
+
+  /* Particles */
+  .particle {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: float-up linear infinite;
+  }
+
+  @keyframes float-up {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0.7; }
+    100% { transform: translateY(-120px) rotate(720deg); opacity: 0; }
+  }
+
+  /* Stars */
+  .star {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    animation: twinkle 2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.3); }
+  }
+
+  /* DOOR SCREEN */
+  #door-screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+
+  .door-label {
+    font-family: 'Dancing Script', cursive;
+    font-size: 2rem;
+    color: #4a90b8;
+    margin-bottom: 2rem;
+    text-shadow: 0 2px 10px rgba(74,144,184,0.3);
+    animation: pulse-text 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-text {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .hint-text {
+    font-size: 0.85rem;
+    color: #5ba0c0;
+    margin-top: 0.5rem;
+    letter-spacing: 1px;
+  }
+
+  /* Door container */
+  .doors-container {
+    display: flex;
+    gap: 8px;
+    position: relative;
+  }
+
+  .door-frame {
+    width: 140px;
+    height: 220px;
+    background: rgba(255,255,255,0.15);
+    border: 3px solid rgba(74,144,184,0.4);
+    border-radius: 70px 70px 6px 6px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 30px rgba(168,216,234,0.3), 0 8px 32px rgba(74,144,184,0.2);
+    perspective: 800px;
+  }
+
+  .door-panel {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #b8dff0 0%, #d4eef8 50%, #f0d4e8 100%);
+    border-radius: 67px 67px 3px 3px;
+    cursor: pointer;
+    transform-origin: left center;
+    transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    box-shadow: inset -4px 0 15px rgba(0,0,0,0.1);
+  }
+
+  .door-panel:hover {
+    box-shadow: inset -4px 0 15px rgba(0,0,0,0.1), 0 0 20px rgba(168,216,234,0.5);
+  }
+
+  .door-panel.right-door {
+    transform-origin: right center;
+  }
+
+  .door-panel.opened-left {
+    transform: perspective(800px) rotateY(-75deg);
+    pointer-events: none;
+  }
+
+  .door-panel.opened-right {
+    transform: perspective(800px) rotateY(75deg);
+    pointer-events: none;
+  }
+
+  .door-knob {
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle at 40% 35%, #f9c8e4, #d4a0c0);
+    border-radius: 50%;
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  .door-right .door-knob {
+    left: 18px;
+    right: auto;
+  }
+
+  .door-deco {
+    font-size: 2.5rem;
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .door-panel-text {
+    font-size: 0.7rem;
+    color: #5a8eaa;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    position: absolute;
+    bottom: 30px;
+    font-weight: 600;
+  }
+
+  /* Wooden floor line */
+  .door-step {
+    width: 308px;
+    height: 12px;
+    background: linear-gradient(180deg, rgba(168,216,234,0.4), rgba(168,216,234,0.1));
+    border-radius: 0 0 8px 8px;
+    border: 2px solid rgba(74,144,184,0.2);
+    border-top: none;
+  }
+
+  /* COUNTDOWN SCREEN */
+  #countdown-screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 8;
+  }
+
+  .countdown-label {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.8rem;
+    color: #4a90b8;
+    margin-bottom: 1.5rem;
+  }
+
+  .countdown-number {
+    font-family: 'Dancing Script', cursive;
+    font-size: 8rem;
+    color: #4a90b8;
+    line-height: 1;
+    text-shadow: 0 4px 20px rgba(74,144,184,0.3);
+    animation: count-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes count-pop {
+    0% { transform: scale(0.3); opacity: 0; }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* CELEBRATION SCREEN */
+  #celebration-screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 8;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .cake-emoji {
+    font-size: 5rem;
+    animation: bounce 1s ease-in-out infinite;
+    margin-bottom: 0.5rem;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  .happy-title {
+    font-family: 'Dancing Script', cursive;
+    font-size: 3.5rem;
+    background: linear-gradient(135deg, #4a90b8, #c084a8, #7ec8e0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+    animation: title-in 1s ease-out;
+  }
+
+  @keyframes title-in {
+    0% { opacity: 0; transform: translateY(30px) scale(0.8); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .name-title {
+    font-family: 'Dancing Script', cursive;
+    font-size: 4.5rem;
+    color: #4a90b8;
+    text-shadow: 0 4px 20px rgba(74,144,184,0.3);
+    margin-bottom: 1rem;
+    animation: name-in 1.2s ease-out 0.3s both;
+  }
+
+  @keyframes name-in {
+    0% { opacity: 0; transform: scale(0.5) rotate(-5deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+
+  .message-card {
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(168,216,234,0.5);
+    border-radius: 20px;
+    padding: 1.2rem 2rem;
+    max-width: 420px;
+    margin-bottom: 1.5rem;
+    animation: card-in 1s ease-out 0.6s both;
+  }
+
+  @keyframes card-in {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  .message-text {
+    font-size: 1rem;
+    color: #3a7090;
+    line-height: 1.7;
+  }
+
+  .flowers-row {
+    display: flex;
+    gap: 1rem;
+    font-size: 2rem;
+    animation: flowers-in 1s ease-out 1s both;
+  }
+
+  @keyframes flowers-in {
+    0% { opacity: 0; transform: scale(0); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  .flower {
+    animation: spin-flower 4s ease-in-out infinite;
+  }
+
+  @keyframes spin-flower {
+    0%, 100% { transform: rotate(-10deg) scale(1); }
+    50% { transform: rotate(10deg) scale(1.2); }
+  }
+
+  /* Confetti pieces */
+  .confetti {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    pointer-events: none;
+    animation: confetti-fall linear infinite;
+  }
+
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0.3; }
+  }
+
+  .heart-float {
+    position: absolute;
+    pointer-events: none;
+    font-size: 1.2rem;
+    animation: heart-rise linear infinite;
+  }
+
+  @keyframes heart-rise {
+    0% { transform: translateY(80vh) scale(0.5); opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateY(-60px) scale(1.2); opacity: 0; }
+  }
+</style>
+
+<div id="app">
+  <!-- Background decorations -->
+  <div id="bg-stars"></div>
+  <div id="bg-particles"></div>
+
+  <!-- SCREEN 1: DOORS -->
+  <div id="door-screen">
+    <p class="door-label">✨ Algo mágico te espera ✨</p>
+    <p class="hint-text">Toca las puertas para abrir...</p>
+    <div style="margin-top: 1.5rem;">
+      <div class="doors-container">
+        <div class="door-frame">
+          <div class="door-panel left-door" id="door-left" onclick="knockDoor('left')">
+            <div class="door-deco">🌸</div>
+            <div class="door-knob" style="right:14px; left:auto;"></div>
+            <div class="door-panel-text">Toca aquí</div>
+          </div>
+        </div>
+        <div class="door-frame">
+          <div class="door-panel right-door" id="door-right" onclick="knockDoor('right')">
+            <div class="door-deco">💙</div>
+            <div class="door-knob" style="left:14px; right:auto;"></div>
+            <div class="door-panel-text">Toca aquí</div>
+          </div>
+        </div>
+      </div>
+      <div class="door-step"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: COUNTDOWN -->
+  <div id="countdown-screen">
+    <p class="countdown-label">Preparándose algo especial...</p>
+    <div class="countdown-number" id="countdown-num">5</div>
+  </div>
+
+  <!-- SCREEN 3: CELEBRATION -->
+  <div id="celebration-screen">
+    <div class="cake-emoji">🎂</div>
+    <div class="happy-title">¡Feliz Cumpleaños!</div>
+    <div class="name-title">María</div>
+    <div class="message-card">
+      <p class="message-text">
+        Que este día esté lleno de mariposas, flores y momentos que te hagan sonreír tanto que no puedas parar. 
+        Eres luz, eres magia, eres todo lo hermoso que tiene el mundo. 
+        Que todos tus sueños vuelen alto como los pétalos en el viento. 💙🌸
+      </p>
+    </div>
+    <div class="flowers-row">
+      <span class="flower" style="animation-delay: 0s">🌷</span>
+      <span class="flower" style="animation-delay: 0.4s">💐</span>
+      <span class="flower" style="animation-delay: 0.8s">🌸</span>
+      <span class="flower" style="animation-delay: 1.2s">🦋</span>
+      <span class="flower" style="animation-delay: 1.6s">🌸</span>
+      <span class="flower" style="animation-delay: 2s">💐</span>
+      <span class="flower" style="animation-delay: 2.4s">🌷</span>
+    </div>
+    <div id="confetti-container"></div>
+    <div id="hearts-container"></div>
+  </div>
+</div>
+
+<script>
+  let leftOpened = false;
+  let rightOpened = false;
+
+  function createStars() {
+    const container = document.getElementById('bg-stars');
+    const colors = ['#7ec8e0','#c084a8','#a8d8ea','#f0c8e0','#b0d4f0'];
+    for (let i = 0; i < 30; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.cssText = `
+        left: ${Math.random() * 100}%;
+        top: ${Math.random() * 100}%;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        animation-delay: ${Math.random() * 3}s;
+        animation-duration: ${1.5 + Math.random() * 2}s;
+        width: ${4 + Math.random() * 6}px;
+        height: ${4 + Math.random() * 6}px;
+      `;
+      container.appendChild(star);
+    }
+  }
+
+  function createParticles() {
+    const container = document.getElementById('bg-particles');
+    const colors = ['#7ec8e0','#c084a8','#a8d8ea','#f0c8e0','#b8e8f8','#f4c8e4'];
+    for (let i = 0; i < 15; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = 5 + Math.random() * 12;
+      p.style.cssText = `
+        left: ${Math.random() * 100}%;
+        width: ${size}px;
+        height: ${size}px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        animation-duration: ${6 + Math.random() * 8}s;
+        animation-delay: ${Math.random() * 8}s;
+      `;
+      container.appendChild(p);
+    }
+  }
+
+  function knockDoor(side) {
+    if (side === 'left' && !leftOpened) {
+      leftOpened = true;
+      const door = document.getElementById('door-left');
+      door.classList.add('opened-left');
+    }
+    if (side === 'right' && !rightOpened) {
+      rightOpened = true;
+      const door = document.getElementById('door-right');
+      door.classList.add('opened-right');
+    }
+    if (leftOpened && rightOpened) {
+      setTimeout(startCountdown, 900);
+    }
+  }
+
+  function startCountdown() {
+    document.getElementById('door-screen').style.display = 'none';
+    const cs = document.getElementById('countdown-screen');
+    cs.style.display = 'flex';
+    let count = 5;
+    const el = document.getElementById('countdown-num');
+    el.textContent = count;
+
+    const interval = setInterval(() => {
+      count--;
+      if (count <= 0) {
+        clearInterval(interval);
+        showCelebration();
+      } else {
+        el.style.animation = 'none';
+        el.offsetHeight;
+        el.style.animation = 'count-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        el.textContent = count;
+      }
+    }, 900);
+  }
+
+  function showCelebration() {
+    document.getElementById('countdown-screen').style.display = 'none';
+    const cel = document.getElementById('celebration-screen');
+    cel.style.display = 'flex';
+    spawnConfetti();
+    spawnHearts();
+  }
+
+  function spawnConfetti() {
+    const container = document.getElementById('confetti-container');
+    const colors = ['#7ec8e0','#c084a8','#a8d8ea','#f9c8e4','#b0d4f0','#f4a8d0','#5ab8d8'];
+    for (let i = 0; i < 40; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.cssText = `
+        left: ${Math.random() * 100}%;
+        top: -10px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        animation-duration: ${3 + Math.random() * 4}s;
+        animation-delay: ${Math.random() * 3}s;
+        width: ${6 + Math.random() * 8}px;
+        height: ${6 + Math.random() * 8}px;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+      `;
+      container.appendChild(c);
+    }
+  }
+
+  function spawnHearts() {
+    const container = document.getElementById('hearts-container');
+    const hearts = ['💙','🩵','💗','🌸','✨','💜'];
+    for (let i = 0; i < 12; i++) {
+      const h = document.createElement('div');
+      h.className = 'heart-float';
+      h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      h.style.cssText = `
+        left: ${Math.random() * 90}%;
+        animation-duration: ${4 + Math.random() * 5}s;
+        animation-delay: ${Math.random() * 4}s;
+      `;
+      container.appendChild(h);
+    }
+  }
+
+  createStars();
+  createParticles();
+</script>
